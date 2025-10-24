@@ -51,20 +51,25 @@ contract votingSystem{
         events[_eventId].candidateNum++;
     }
 
-    function vote(uint _eventId, uint _candidateId) public{
-        if(block.timestamp > events[_eventId].endTime){
-            events[_eventId].isActive = false;
-        }
-        require(events[_eventId].isActive, "Event has ended");
+    function vote(uint _eventId, uint _candidateId) public {
+        require(events[_eventId].creator != address(0), "Event does not exist");
+    
         require(block.timestamp >= events[_eventId].startTime, "Event has not started yet");
+        require(block.timestamp <= events[_eventId].endTime, "Event has ended");
+        require(events[_eventId].isActive, "Event is not active");
+    
         require(_candidateId < events[_eventId].candidateNum, "Candidate does not exist");
-
         require(!hasVoted[_eventId][msg.sender], "You have already voted");
+    
         hasVoted[_eventId][msg.sender] = true;
-
         votes[_eventId][_candidateId]++;
 
         emit VoteCast(_eventId, _candidateId, msg.sender);
+    }
+
+    function deactivateEvent(uint _eventId) public {
+        require(events[_eventId].creator == msg.sender || msg.sender == owner, "Only event creator or owner can deactivate");
+            events[_eventId].isActive = false;
     }
 
     function getResults(uint _eventId) public view returns (string[] memory names, uint[] memory voteCount){

@@ -1,5 +1,6 @@
+// src/pages/Admin.jsx
 import { useState } from "react";
-import { createEvent, addCandidate } from "../services/contract";
+import { createEvent, addCandidate, resolveEventId } from "../services/contract";
 
 export default function Admin() {
   const [evName, setEvName] = useState("");
@@ -9,7 +10,7 @@ export default function Admin() {
   const [maxCands, setMaxCands] = useState(1);
   const [createMsg, setCreateMsg] = useState("");
 
-  const [candEventId, setCandEventId] = useState(0);
+  const [candQuery, setCandQuery] = useState("");   // event ID OR name (new)
   const [candName, setCandName] = useState("");
   const [candStmt, setCandStmt] = useState("");
   const [candMsg, setCandMsg] = useState("");
@@ -28,8 +29,15 @@ export default function Admin() {
 
   const handleAddCandidate = async () => {
     try {
+      setCandMsg("Checking event...");
+      const resolvedId = await resolveEventId(candQuery);
+      if (!resolvedId) {
+        setCandMsg("❌ Event not found");
+        return;
+      }
+
       setCandMsg("Adding candidate...");
-      await addCandidate(Number(candEventId), candName, candStmt);
+      await addCandidate(resolvedId, candName, candStmt);
       setCandMsg("✅ Candidate added");
     } catch (e) {
       setCandMsg("❌ " + (e?.message || e));
@@ -41,56 +49,76 @@ export default function Admin() {
       <h2 className="mb-4">Create Event & Add Candidates</h2>
 
       <div className="grid">
+        {/* --- CREATE EVENT --- */}
         <div className="card">
           <h3>Create Event</h3>
+
           <div className="mt-3">
             <label>Name</label>
             <input className="input mt-2" value={evName} onChange={(e) => setEvName(e.target.value)} />
           </div>
+
           <div className="mt-3">
             <label>Description</label>
             <input className="input mt-2" value={evDesc} onChange={(e) => setEvDesc(e.target.value)} />
           </div>
+
           <div className="mt-3">
             <label>Start</label>
             <input type="datetime-local" className="input mt-2" value={start} onChange={(e) => setStart(e.target.value)} />
           </div>
+
           <div className="mt-3">
             <label>End</label>
             <input type="datetime-local" className="input mt-2" value={end} onChange={(e) => setEnd(e.target.value)} />
           </div>
+
           <div className="mt-3">
             <label>Max Candidates</label>
             <input type="number" className="input mt-2" value={maxCands} min={1} onChange={(e) => setMaxCands(e.target.value)} />
           </div>
+
           <button className="button button-primary mt-3" onClick={handleCreate}>Create</button>
           {createMsg && (
-            <div className={`alert mt-3 ${createMsg.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>{createMsg}</div>
+            <div className={`alert mt-3 ${createMsg.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>
+              {createMsg}
+            </div>
           )}
         </div>
 
+        {/* --- ADD CANDIDATE --- */}
         <div className="card">
           <h3>Add Candidate</h3>
+
           <div className="mt-3">
-            <label>Event ID</label>
-            <input type="number" className="input mt-2" value={candEventId} onChange={(e) => setCandEventId(e.target.value)} />
+            <label>Event (ID or name)</label>
+            <input
+              className="input mt-2"
+              placeholder="e.g. 1 or CE2025"
+              value={candQuery}
+              onChange={(e) => setCandQuery(e.target.value)}
+            />
           </div>
+
           <div className="mt-3">
             <label>Name</label>
             <input className="input mt-2" value={candName} onChange={(e) => setCandName(e.target.value)} />
           </div>
+
           <div className="mt-3">
             <label>Statement</label>
             <input className="input mt-2" value={candStmt} onChange={(e) => setCandStmt(e.target.value)} />
           </div>
+
           <button className="button button-accent mt-3" onClick={handleAddCandidate}>Add Candidate</button>
+
           {candMsg && (
-            <div className={`alert mt-3 ${candMsg.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>{candMsg}</div>
+            <div className={`alert mt-3 ${candMsg.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>
+              {candMsg}
+            </div>
           )}
         </div>
       </div>
     </div>
   );
 }
-
-

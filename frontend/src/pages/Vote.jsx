@@ -49,6 +49,10 @@ export default function Vote({ account }) {
       setMsg("ERROR: Connect wallet first.");
       return;
     }
+    if (!eventId) {
+      setMsg("ERROR: Please select a valid event first.");
+      return;
+    }
     if (!isRegistered(eventId, account)) {
       setMsg("ERROR: You must register for this event first (see Register tab).");
       return;

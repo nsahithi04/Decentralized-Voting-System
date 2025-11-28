@@ -13,11 +13,31 @@ A blockchain-based voting platform built with Solidity smart contracts and React
 
 ## 🏗️ Project Structure
 ```
-voting-dapp/
-├── smart-contracts/       # Solidity contracts
-│   └── votingSystem.sol
-└── frontend/             # React application
-    └── src/
+Decentralized-Voting-System/
+├── votingSystem.sol           # Solidity smart contract
+└── frontend/                  # React application
+    ├── src/
+    │   ├── components/        # UI components
+    │   │   ├── NavBar.jsx
+    │   │   └── Onboarding.jsx
+    │   ├── pages/             # Route pages
+    │   │   ├── Home.jsx
+    │   │   ├── Admin.jsx      # Create events & add candidates
+    │   │   ├── Vote.jsx
+    │   │   ├── Results.jsx
+    │   │   ├── Register.jsx
+    │   │   └── Account.jsx
+    │   ├── services/          # Contract interactions
+    │   │   ├── contract.js    # Blockchain calls
+    │   │   ├── profile.js
+    │   │   └── registration.js
+    │   ├── hooks/
+    │   │   └── useWallet.js   # Wallet connection hook
+    │   ├── abi.json           # Contract ABI
+    │   ├── config.js          # Contract address config
+    │   ├── App.js             # Main app component
+    │   └── index.css          # Global styles
+    └── package.json
 ```
 
 ## 🔧 Tech Stack

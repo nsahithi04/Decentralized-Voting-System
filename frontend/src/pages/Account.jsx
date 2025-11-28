@@ -33,9 +33,9 @@ export default function Account({ account }) {
   };
 
   const saveName = () => {
-    if (!account) { setMsg("Connect wallet first."); return; }
+    if (!account) { setMsg("ERROR: Connect wallet first."); return; }
     setProfile(account, { displayName });
-    setMsg("✅ Profile saved");
+    setMsg("SUCCESS: Profile saved");
   };
 
   const handleExport = () => {
@@ -54,9 +54,11 @@ export default function Account({ account }) {
     reader.onload = () => {
       try {
         importProfiles(String(reader.result));
-        setMsg("✅ Profiles imported");
+        setMsg("SUCCESS: Profiles imported");
       } catch (e) {
-        setMsg("❌ " + (e?.message || e));
+        const errorMsg = e?.message || String(e);
+        const shortMsg = errorMsg.length > 80 ? errorMsg.substring(0, 80) + "..." : errorMsg;
+        setMsg("ERROR: " + shortMsg);
       }
     };
     reader.readAsText(file);
@@ -71,7 +73,11 @@ export default function Account({ account }) {
           <input className="input ml-2" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="e.g. Alice" />
         </label>
         <button className="button button-primary mt-3" onClick={saveName}>Save</button>
-        {msg && <div className={`alert mt-2 ${msg.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>{msg}</div>}
+        {msg && <div className={`alert mt-2 ${
+          msg.startsWith('ERROR') ? 'alert-danger' :
+          msg.startsWith('SUCCESS') ? 'alert-success' :
+          'alert-info'
+        }`}>{msg}</div>}
       </div>
 
       <div className="card mt-3">

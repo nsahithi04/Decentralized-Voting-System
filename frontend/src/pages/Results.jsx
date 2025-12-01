@@ -23,7 +23,7 @@ export default function Results() {
       setResults(res);
     } catch (e) {
       console.error(e);
-      setMsg("Could not load results.");
+      setMsg("ERROR: Could not load results.");
     }
   };
 
@@ -64,7 +64,7 @@ export default function Results() {
         <div className="card mb-4">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span><strong>{eventInfo.name}</strong></span>
-            <span className="muted">{eventInfo.isActive ? 'Active' : 'Inactive'}</span>
+            <span className="muted">{eventInfo.isActive && Date.now() / 1000 <= Number(eventInfo.endTime) ? 'Active' : 'Inactive'}</span>
           </div>
           <p className="muted mt-2">{eventInfo.description}</p>
         </div>

@@ -7,12 +7,14 @@ export default function Onboarding({ account, hasProvider, connect, onSave }) {
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    if (!hasProvider) { setMsg("MetaMask not detected."); return; }
+    if (!hasProvider) { setMsg("ERROR: MetaMask not detected."); return; }
     try {
       await connect();
       onSave(name.trim());
     } catch (e) {
-      setMsg("❌ " + (e?.message || e));
+      const errorMsg = e?.message || String(e);
+      const shortMsg = errorMsg.length > 80 ? errorMsg.substring(0, 80) + "..." : errorMsg;
+      setMsg("ERROR: " + shortMsg);
     }
   };
 
@@ -26,7 +28,11 @@ export default function Onboarding({ account, hasProvider, connect, onSave }) {
         </label>
         <button className="button button-primary mt-3" onClick={handleSubmit} disabled={!canSubmit}>Connect & Continue</button>
         {account && <div className="muted mt-2">Detected: {account.slice(0,6)}...{account.slice(-4)}</div>}
-        {msg && <div className={`alert mt-2 ${msg.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>{msg}</div>}
+        {msg && <div className={`alert mt-2 ${
+          msg.startsWith('ERROR') ? 'alert-danger' :
+          msg.startsWith('SUCCESS') ? 'alert-success' :
+          'alert-info'
+        }`}>{msg}</div>}
       </div>
     </div>
   );

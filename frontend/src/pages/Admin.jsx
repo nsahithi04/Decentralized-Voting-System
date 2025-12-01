@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createEvent, addCandidate } from "../services/contract";
+import { createEvent, addCandidate, deactivateEvent, resolveEventId } from "../services/contract";
 
 export default function Admin() {
   const [evName, setEvName] = useState("");
@@ -9,10 +9,13 @@ export default function Admin() {
   const [maxCands, setMaxCands] = useState(1);
   const [createMsg, setCreateMsg] = useState("");
 
-  const [candEventId, setCandEventId] = useState(0);
+  const [candEventInput, setCandEventInput] = useState("");
   const [candName, setCandName] = useState("");
   const [candStmt, setCandStmt] = useState("");
   const [candMsg, setCandMsg] = useState("");
+
+  const [deactEventInput, setDeactEventInput] = useState("");
+  const [deactMsg, setDeactMsg] = useState("");
 
   const handleCreate = async () => {
     try {
@@ -20,19 +23,45 @@ export default function Admin() {
       const startTime = Math.floor(new Date(start).getTime() / 1000);
       const endTime = Math.floor(new Date(end).getTime() / 1000);
       await createEvent(evName, evDesc, startTime, endTime, Number(maxCands));
-      setCreateMsg("✅ Event created");
+      setCreateMsg("SUCCESS: Event created successfully");
     } catch (e) {
-      setCreateMsg("❌ " + (e?.message || e));
+      const errorMsg = e?.message || String(e);
+      const shortMsg = errorMsg.length > 100 ? errorMsg.substring(0, 100) + "..." : errorMsg;
+      setCreateMsg("ERROR: " + shortMsg);
     }
   };
 
   const handleAddCandidate = async () => {
     try {
       setCandMsg("Adding candidate...");
-      await addCandidate(Number(candEventId), candName, candStmt);
-      setCandMsg("✅ Candidate added");
+      const eventId = await resolveEventId(candEventInput);
+      if (!eventId) {
+        setCandMsg("ERROR: Event not found");
+        return;
+      }
+      await addCandidate(eventId, candName, candStmt);
+      setCandMsg("SUCCESS: Candidate added successfully");
     } catch (e) {
-      setCandMsg("❌ " + (e?.message || e));
+      const errorMsg = e?.message || String(e);
+      const shortMsg = errorMsg.length > 100 ? errorMsg.substring(0, 100) + "..." : errorMsg;
+      setCandMsg("ERROR: " + shortMsg);
+    }
+  };
+
+  const handleDeactivate = async () => {
+    try {
+      setDeactMsg("Deactivating event...");
+      const eventId = await resolveEventId(deactEventInput);
+      if (!eventId) {
+        setDeactMsg("ERROR: Event not found");
+        return;
+      }
+      await deactivateEvent(eventId);
+      setDeactMsg("SUCCESS: Event deactivated successfully");
+    } catch (e) {
+      const errorMsg = e?.message || String(e);
+      const shortMsg = errorMsg.length > 100 ? errorMsg.substring(0, 100) + "..." : errorMsg;
+      setDeactMsg("ERROR: " + shortMsg);
     }
   };
 
@@ -65,15 +94,19 @@ export default function Admin() {
           </div>
           <button className="button button-primary mt-3" onClick={handleCreate}>Create</button>
           {createMsg && (
-            <div className={`alert mt-3 ${createMsg.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>{createMsg}</div>
+            <div className={`alert mt-3 ${
+              createMsg.startsWith('ERROR') ? 'alert-danger' :
+              createMsg.startsWith('SUCCESS') ? 'alert-success' :
+              'alert-info'
+            }`}>{createMsg}</div>
           )}
         </div>
 
         <div className="card">
           <h3>Add Candidate</h3>
           <div className="mt-3">
-            <label>Event ID</label>
-            <input type="number" className="input mt-2" value={candEventId} onChange={(e) => setCandEventId(e.target.value)} />
+            <label>Event ID or Name</label>
+            <input className="input mt-2" value={candEventInput} onChange={(e) => setCandEventInput(e.target.value)} placeholder="1 or 'Election 2024'" />
           </div>
           <div className="mt-3">
             <label>Name</label>
@@ -85,7 +118,27 @@ export default function Admin() {
           </div>
           <button className="button button-accent mt-3" onClick={handleAddCandidate}>Add Candidate</button>
           {candMsg && (
-            <div className={`alert mt-3 ${candMsg.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>{candMsg}</div>
+            <div className={`alert mt-3 ${
+              candMsg.startsWith('ERROR') ? 'alert-danger' :
+              candMsg.startsWith('SUCCESS') ? 'alert-success' :
+              'alert-info'
+            }`}>{candMsg}</div>
+          )}
+        </div>
+
+        <div className="card">
+          <h3>Deactivate Event</h3>
+          <div className="mt-3">
+            <label>Event ID or Name</label>
+            <input className="input mt-2" value={deactEventInput} onChange={(e) => setDeactEventInput(e.target.value)} placeholder="1 or 'Election 2024'" />
+          </div>
+          <button className="button button-warning mt-3" onClick={handleDeactivate}>Deactivate</button>
+          {deactMsg && (
+            <div className={`alert mt-3 ${
+              deactMsg.startsWith('ERROR') ? 'alert-danger' :
+              deactMsg.startsWith('SUCCESS') ? 'alert-success' :
+              'alert-info'
+            }`}>{deactMsg}</div>
           )}
         </div>
       </div>

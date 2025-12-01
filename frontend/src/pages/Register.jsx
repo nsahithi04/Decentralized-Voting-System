@@ -31,14 +31,16 @@ export default function Register({ account }) {
   }, [query]);
 
   const handleRegister = async () => {
-    if (!account) { setStatus("Connect wallet first."); return; }
-    if (eventId == null) { setStatus("Enter a valid event (ID or name)."); return; }
+    if (!account) { setStatus("ERROR: Connect wallet first."); return; }
+    if (eventId == null) { setStatus("ERROR: Enter a valid event (ID or name)."); return; }
     try {
       doRegister(eventId, account);
-      setStatus("✅ Registered for this event (off-chain)");
+      setStatus("SUCCESS: Registered for this event");
       setList(getRegistrations(eventId));
     } catch (e) {
-      setStatus("❌ " + (e?.message || e));
+      const errorMsg = e?.message || String(e);
+      const shortMsg = errorMsg.length > 80 ? errorMsg.substring(0, 80) + "..." : errorMsg;
+      setStatus("ERROR: " + shortMsg);
     }
   };
 
@@ -57,8 +59,12 @@ export default function Register({ account }) {
           <div className="muted mt-2">{ev.name} — {ev.description}</div>
         )}
         <button onClick={handleRegister} className="button button-accent mt-3" disabled={!account || already}>Register</button>
-        {already && <div className="alert alert-info mt-2">You are already registered.</div>}
-        {status && <div className={`alert mt-2 ${status.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>{status}</div>}
+        {already && <div className="alert alert-success mt-2">You are already registered.</div>}
+        {status && <div className={`alert mt-2 ${
+          status.startsWith('ERROR') ? 'alert-danger' :
+          status.startsWith('SUCCESS') ? 'alert-success' :
+          'alert-info'
+        }`}>{status}</div>}
       </div>
       {eventId != null && (
         <div className="card mt-3">

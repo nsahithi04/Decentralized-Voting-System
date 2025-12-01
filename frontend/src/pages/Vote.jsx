@@ -46,20 +46,26 @@ export default function Vote({ account }) {
 
   const handleVote = async (idx) => {
     if (!account) {
-      setMsg("Connect wallet first.");
+      setMsg("ERROR: Connect wallet first.");
+      return;
+    }
+    if (!eventId) {
+      setMsg("ERROR: Please select a valid event first.");
       return;
     }
     if (!isRegistered(eventId, account)) {
-      setMsg("❌ You must register for this event first (see Register tab).");
+      setMsg("ERROR: You must register for this event first (see Register tab).");
       return;
     }
     try {
       setMsg("Submitting vote...");
       await castVote(eventId, idx);
-      setMsg("✅ Vote recorded on-chain.");
+      setMsg("SUCCESS: Vote recorded on-chain.");
     } catch (e) {
       console.error(e);
-      setMsg("❌ " + e.message);
+      const errorMsg = e?.message || String(e);
+      const shortMsg = errorMsg.length > 80 ? errorMsg.substring(0, 80) + "..." : errorMsg;
+      setMsg("ERROR: " + shortMsg);
     }
   };
 
@@ -82,7 +88,7 @@ export default function Vote({ account }) {
         <div className="card mt-3">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span><strong>{eventInfo.name}</strong></span>
-            <span className="muted">{eventInfo.isActive ? 'Active' : 'Inactive'}</span>
+            <span className="muted">{eventInfo.isActive && Date.now() / 1000 <= Number(eventInfo.endTime) ? 'Active' : 'Inactive'}</span>
           </div>
           <p className="muted mt-2">{eventInfo.description}</p>
           <p className="muted mt-2">Window: {new Date(Number(eventInfo.startTime) * 1000).toLocaleString()} → {new Date(Number(eventInfo.endTime) * 1000).toLocaleString()}</p>
@@ -105,7 +111,11 @@ export default function Vote({ account }) {
       )}
 
       {msg && (
-        <div className={`alert mt-4 ${msg.startsWith('❌') ? 'alert-danger' : 'alert-info'}`}>{msg}</div>
+        <div className={`alert mt-4 ${
+          msg.startsWith('ERROR') ? 'alert-danger' :
+          msg.startsWith('SUCCESS') ? 'alert-success' :
+          'alert-info'
+        }`}>{msg}</div>
       )}
     </div>
   );

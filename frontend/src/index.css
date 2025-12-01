@@ -5,8 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #0b1220;
-  color: #e6ecf2;
+  background: var(--bg);
+  color: var(--text);
 }
 
 code {
@@ -16,18 +16,18 @@ code {
 
 /* Theme tokens */
 :root {
-  --bg: #0b1220;
-  --bg-elev: #121a2b;
-  --text: #e6ecf2;
-  --muted: #9fb0c3;
-  --primary: #16a34a;
-  --primary-600: #12843d;
-  --primary-700: #0f6c33;
-  --surface: #0f172a;
-  --border: #22314c;
-  --accent: #3b82f6;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  --bg: #f7f8fa;
+  --bg-elev: #f0f1f4;
+  --text: #23272f;
+  --muted: #7a869a;
+  --primary: #7bbf9a;
+  --primary-600: #5ea885;
+  --primary-700: #4d8d6e;
+  --surface: #ffffff;
+  --border: #e0e4ea;
+  --accent: #8db7e0;
+  --danger: #f6b2b2;
+  --warning: #ffe3a3;
 }
 
 /* Layout */
@@ -83,6 +83,12 @@ code {
   background: var(--accent);
   color: white;
 }
+.button-warning {
+  border-color: transparent;
+  background: var(--warning);
+  color: #92400e;
+  font-weight: 500;
+}
 
 /* Inputs */
 .input {
@@ -109,15 +115,45 @@ label { color: var(--muted); font-size: 14px; }
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px;
+  transition: box-shadow 0.22s cubic-bezier(.4,2,.6,1),
+              transform 0.22s cubic-bezier(.4,2,.6,1);
+  box-shadow: 0 1px 4px 0 rgba(30,34,90,0.04);
+}
+.card:hover, .card:focus {
+  transform: translateY(-6px) scale(1.035);
+  box-shadow: 0 8px 24px 0 rgba(30,34,90,0.14), 0 1.5px 8px 0 rgba(30,34,90,0.09);
+  outline: none;
 }
 
 .muted { color: var(--muted); }
 
 /* Alerts */
-.alert { padding: 10px 12px; border-radius: 8px; }
-.alert-info { background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #bfdbfe; }
-.alert-warn { background: rgba(245,158,11,0.15); border: 1px solid #f59e0b; color: #fde68a; }
-.alert-danger { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #fecaca; }
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+}
+.alert-info {
+  background: #e0f2fe;
+  border: 1px solid #0284c7;
+  color: #0c4a6e;
+}
+.alert-success {
+  background: #d1fae5;
+  border: 1px solid #059669;
+  color: #065f46;
+}
+.alert-warn {
+  background: #fef3c7;
+  border: 1px solid #d97706;
+  color: #92400e;
+}
+.alert-danger {
+  background: #fee2e2;
+  border: 1px solid #dc2626;
+  color: #991b1b;
+}
 
 /* Utility spacing */
 .mt-2 { margin-top: 8px; }
